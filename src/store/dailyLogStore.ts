@@ -1,3 +1,4 @@
-import { writable } from "svelte/store";
+import { writable } from 'svelte/store'
+import { type GroupedData } from '../utils/group'
 
-export const dailyLogBlocks = writable<any[]>([]);
+export const dailyLogBlocks = writable<GroupedData>(new Map())

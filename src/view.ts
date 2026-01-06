@@ -3,6 +3,7 @@ import { mount, unmount } from 'svelte'
 import DailyLog from './ui/DailyLog.svelte'
 import { parseDailyLog } from './parser'
 import { dailyLogBlocks } from './store/dailyLogStore'
+import { groupByDateMap, type ProjectItem } from './utils/group'
 
 export const VIEW_TYPE_DAILY_LOG = 'daily-work-log-view'
 
@@ -33,8 +34,9 @@ export class DailyLogView extends ItemView {
   async refresh() {
     console.log('Refreshing Daily Log View...')
     const blocks = await parseDailyLog(this.app)
-
-    dailyLogBlocks.set(blocks)
+    console.log('🚀 ~ DailyLogView ~ refresh ~ blocks:', blocks)
+    const data = groupByDateMap(blocks as ProjectItem[])
+    dailyLogBlocks.set(data)
   }
 
   async onClose() {

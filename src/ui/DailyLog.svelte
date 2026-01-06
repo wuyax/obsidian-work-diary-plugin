@@ -1,33 +1,37 @@
 <script lang="ts">
-  import { dailyLogBlocks } from "../store/dailyLogStore";
+  import { dailyLogBlocks } from '../store/dailyLogStore'
 
   function copy(blocks: any[]) {
     const text = blocks
       .map(
-        (b) =>
-          `${b.priority}: ${b.project}\n` +
-          b.items.map((i:string, idx:number) => `${idx + 1}、${i}`).join("\n")
+        b => `${b.priority}: ${b.project}\n` + b.items.map((i: string, idx: number) => `${idx + 1}、${i}`).join('\n')
       )
-      .join("\n\n");
+      .join('\n\n')
 
-    navigator.clipboard.writeText(text);
+    navigator.clipboard.writeText(text)
   }
 </script>
 
 <div class="diary-wrap">
-  {#if $dailyLogBlocks.length === 0}
-  <p>无日志数据</p>
+  {#if $dailyLogBlocks.size === 0}
+    <p>无日志数据</p>
   {:else}
-    {#each $dailyLogBlocks as block}
-      <h3>{block.priority}: {block.project}</h3>
-      <ol>
-        {#each block.items as item}
-          <li>{item}</li>
+    {#each Array.from($dailyLogBlocks) as [date, items]}
+      <div class="every-day">
+        <div class="date">{date}</div>
+        {#each items as block}
+          <h3>{block.priority}: {block.project}</h3>
+          <ol>
+            {#each block.items as item}
+              <li>{item}</li>
+            {/each}
+          </ol>
         {/each}
-      </ol>
+        <div class="btn-wrap">
+          <button on:click={() => copy(items)}>复制</button>
+        </div>
+      </div>
     {/each}
-
-    <button on:click={() => copy($dailyLogBlocks)}>复制</button>
   {/if}
 </div>
 
@@ -35,18 +39,37 @@
   .diary-wrap {
     padding: 1em;
   }
+  .every-day {
+    margin-bottom: 2em;
+    padding-bottom: 1em;
+    border-bottom: 1px solid var(--divider-color);
+  }
+  .date {
+    color: gray;
+    font-family: fantasy;
+    text-align: end;
+  }
+  .btn-wrap {
+    display: flex;
+    justify-content: center;
+  }
   h3 {
-    margin: 0;
+    margin: 4px 0;
   }
 
   ol {
     margin: 0 0 1.5em 0em;
+    padding: 0 0 0 2em;
+  }
+
+  li {
+    line-height: 1.7;
   }
 
   button {
     margin-top: 2em;
     padding: 0.5em 1em;
-    background-color: var(--button-bg);
+    background-color: var(--background-secondary);
     color: var(--button-fg);
     border: none;
     border-radius: 4px;
@@ -54,6 +77,10 @@
   }
 
   button:hover {
-    background-color: var(--button-hover-bg);
+    background-color: var(--background-primary);
+  }
+
+  button:active {
+    background-color: var(--background-primary-alt);
   }
 </style>

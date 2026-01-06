@@ -18,14 +18,18 @@ export async function parseDailyLog(app: App): Promise<any[]> {
 
       currentBlock = {
         project: line.replace("## ", "").trim(),
-        priority: "P4",
         items: [],
       };
       continue;
     }
 
-    if (line && line.startsWith("@priority:")) {
-      currentBlock.priority = line.split(":")[1]?.trim();
+    if (line.startsWith("@")) {
+      const colonIndex = line.indexOf(":");
+      if (colonIndex !== -1) {
+        const key = line.substring(1, colonIndex).trim();
+        const value = line.substring(colonIndex + 1).trim();
+        currentBlock[key] = value;
+      }
       continue;
     }
 
