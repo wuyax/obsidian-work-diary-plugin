@@ -2,11 +2,19 @@ import { Plugin } from 'obsidian'
 import { DailyLogView, VIEW_TYPE_DAILY_LOG } from './view'
 
 export default class DailyWorkLogPlugin extends Plugin {
+  private isOpen = false
   async onload() {
     this.registerView(VIEW_TYPE_DAILY_LOG, leaf => new DailyLogView(leaf))
 
-    this.addRibbonIcon('clipboard-list', 'Show Daily Work Log', () => {
-      this.activateView()
+    this.addRibbonIcon('notebook-tabs', 'Daily Work Log', () => {
+      // toggle view
+      if (this.isOpen) {
+        this.closeView()
+        this.isOpen = false
+      } else {
+        this.activateView()
+        this.isOpen = true
+      }
     })
 
     // ⭐ 关键：监听 active file 变化
@@ -45,6 +53,10 @@ export default class DailyWorkLogPlugin extends Plugin {
     if (view?.refresh) {
       await view.refresh()
     }
+  }
+
+  async closeView() {
+    this.app.workspace.detachLeavesOfType(VIEW_TYPE_DAILY_LOG)
   }
 
   onunload() {
