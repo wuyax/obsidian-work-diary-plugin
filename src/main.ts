@@ -57,6 +57,7 @@ export default class DailyWorkLogPlugin extends Plugin {
 
   async closeView() {
     this.app.workspace.detachLeavesOfType(VIEW_TYPE_DAILY_LOG)
+    this.app.workspace.rightSplit.collapse()
   }
 
   onunload() {
