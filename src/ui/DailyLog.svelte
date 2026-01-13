@@ -1,5 +1,20 @@
 <script lang="ts">
   import { dailyLogBlocks } from '../store/dailyLogStore'
+  import { type ProjectItem } from '../utils/group'
+
+  function mergeBlocks(blocks: ProjectItem[]): ProjectItem[] {
+    const merged = new Map<string, ProjectItem>();
+    blocks.forEach(block => {
+      const key = block.project;
+      if (!merged.has(key)) {
+        merged.set(key, { ...block });
+      } else {
+        const existing = merged.get(key)!;
+        existing.items = existing.items.concat(block.items);
+      }
+    });
+    return Array.from(merged.values());
+  }
 
   function copy(blocks: any[]) {
     const text = blocks
@@ -17,9 +32,10 @@
     <p>无日志数据</p>
   {:else}
     {#each Array.from($dailyLogBlocks) as [date, items]}
+      {@const mergedItems = mergeBlocks(items)}
       <div class="every-day">
         <div class="date">{date}</div>
-        {#each items as block}
+        {#each mergedItems as block}
           <h3>{block.priority}: {block.project}</h3>
           <ol>
             {#each block.items as item}
@@ -28,7 +44,7 @@
           </ol>
         {/each}
         <div class="btn-wrap">
-          <button on:click={() => copy(items)}>复制</button>
+          <button on:click={() => copy(mergedItems)}>复制</button>
         </div>
       </div>
     {/each}
