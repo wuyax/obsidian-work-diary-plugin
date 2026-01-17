@@ -54,6 +54,8 @@
 <style>
   .diary-wrap {
     padding: 1em;
+    height: 100%;
+    overflow: auto;
   }
   .every-day {
     margin-bottom: 2em;
