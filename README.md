@@ -1,90 +1,66 @@
-# Obsidian Sample Plugin
+# Obsidian Work Diary Plugin
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+A specialized work logging and aggregation tool for Obsidian, designed to help you track projects, calculate effort, and generate professional summaries using AI.
 
-This project uses TypeScript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
+## Key Features
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open modal (simple)" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
+- **Multi-dimensional Logging**: Track work by project, module, priority, and effort.
+- **Weekly View**: Quick overview of your current week's progress.
+- **Monthly View**: Automatically aggregates all weekly logs into a monthly summary, merging identical projects/modules and summing up effort units.
+- **Quarterly View (AI Optimized)**: Synthesizes quarterly data and provides a specialized prompt for LLMs to generate professional performance reviews.
+- **One-click Export**: Copy formatted work logs or AI-ready prompts to your clipboard.
 
-## First time developing plugins?
+## Setup Instructions
 
-Quick starting guide for new plugin devs:
+### 1. Install Template
+The plugin relies on a specific metadata format. It is recommended to use the **Templater** plugin to create your weekly log files.
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+Create a new template file (e.g., `work-diary-template.md`) with the following content:
 
-## Releasing new releases
+```markdown
+<%*
+const weekId = tp.date.now("GGGG-[W]WW");
+const date = tp.date.now("YYYY-MM-DD")
+await tp.file.rename(weekId);
+_%>---
+type: daily-work-log
+week: <% weekId %>
+---
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
+## Project Name
+@date: <% date %>
+@priority: P0
+@module: UI-Design
+@effort: 4
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
-
-## Adding your plugin to the community plugin list
-
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
-
-## How to use
-
-- Clone this repo.
-- Make sure your NodeJS is at least v16 (`node --version`).
-- `npm i` or `yarn` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
-
-## Manually installing the plugin
-
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
-
-## Improve code quality with eslint
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-- This project already has eslint preconfigured, you can invoke a check by running`npm run lint`
-- Together with a custom eslint [plugin](https://github.com/obsidianmd/eslint-plugin) for Obsidan specific code guidelines.
-- A GitHub action is preconfigured to automatically lint every commit on all branches.
-
-## Funding URL
-
-You can include funding URLs where people who use your plugin can financially support it.
-
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
-
-```json
-{
-    "fundingUrl": "https://buymeacoffee.com"
-}
+- Finished the main dashboard layout
+- Refactored navigation component
+---
 ```
 
-If you have multiple URLs, you can also do:
+### 2. Create Log Files
+- Files must be named in the format `YYYY-W##` (e.g., `2026-W01.md`).
+- Use the template above to ensure the parser can read your data.
 
-```json
-{
-    "fundingUrl": {
-        "Buy Me a Coffee": "https://buymeacoffee.com",
-        "GitHub Sponsor": "https://github.com/sponsors",
-        "Patreon": "https://www.patreon.com/"
-    }
-}
-```
+## How to Use
 
-## API Documentation
+1. **Activate View**: Click the **Notebook** icon in the ribbon (left sidebar) or use the command palette to open "Daily Work Log".
+2. **Logging**: Write your work entries in the active weekly file using the `## Project` and `@key: value` format.
+3. **Switching Modes**: Use the dropdown in the plugin sidebar to switch between:
+   - **Current File**: View logs from the currently active file.
+   - **Monthly View**: Aggregated summary for the current month.
+   - **Quarterly View**: High-level summary for the current quarter.
+4. **Exporting**:
+   - In **Weekly/Monthly** mode: Click **Copy** to get a formatted list of work.
+   - In **Quarterly** mode: Click **Copy for LLM** to get a complete prompt + data package, then paste it into ChatGPT/Claude to generate your quarterly report.
 
-See https://docs.obsidian.md
+## Data Format Reference
+
+The parser looks for the following markers:
+- `## Project Name`: Defines a project block.
+- `@date: YYYY-MM-DD`: Used for monthly/quarterly grouping.
+- `@priority: P0-P4`: Importance level.
+- `@module: name`: Component or sub-system name.
+- `@effort: number`: Numeric value representing time or complexity.
+- `- item`: Individual work record.
+- `---`: Separator between blocks.
