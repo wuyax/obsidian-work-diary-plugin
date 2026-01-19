@@ -38,7 +38,16 @@ export function aggregateByProject(items: ProjectItem[]): ProjectItem[] {
       existing.effort = (currentEffort + newEffort).toString()
     }
   })
-  return Array.from(merged.values())
+  
+  return Array.from(merged.values()).sort((a, b) => {
+    if (a.project !== b.project) {
+      return a.project.localeCompare(b.project)
+    }
+    const priorityOrder: Record<string, number> = { 'P0': 0, 'P1': 1, 'P2': 2, 'P3': 3, 'P4': 4 }
+    const pA = priorityOrder[a.priority] ?? 99
+    const pB = priorityOrder[b.priority] ?? 99
+    return pA - pB
+  })
 }
 
 export function groupByMonthMap(items: ProjectItem[]): GroupedData {
