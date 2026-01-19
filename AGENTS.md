@@ -1,44 +1,30 @@
-# Obsidian community plugin
+# Obsidian community plugin - Work Diary
 
 ## Project overview
 
 - Target: Obsidian Community Plugin (TypeScript → bundled JavaScript).
 - Entry point: `main.ts` compiled to `main.js` and loaded by Obsidian.
 - Required release artifacts: `main.js`, `manifest.json`, and optional `styles.css`.
+- **UI Framework**: Uses Svelte for user interface components with Svelte stores for state management.
 
 ## Environment & tooling
 
 - Node.js: use current LTS (Node 18+ recommended).
-- **Package manager: npm** (required for this sample - `package.json` defines npm scripts and dependencies).
-- **Bundler: esbuild** (required for this sample - `esbuild.config.mjs` and build scripts depend on it). Alternative bundlers like Rollup or webpack are acceptable for other projects if they bundle all external dependencies into `main.js`.
+- **Package manager: npm** (required - defined in `package.json`).
+- **Bundler: esbuild** (required - `esbuild.config.mjs` with Svelte plugin).
 - Types: `obsidian` type definitions.
 
-**Note**: This sample project has specific technical dependencies on npm and esbuild. If you're creating a plugin from scratch, you can choose different tools, but you'll need to replace the build configuration accordingly.
-
-### Install
+## Commands
 
 ```bash
-npm install
+npm install              # Install dependencies
+npm run dev              # Watch mode: rebuilds on file changes
+npm run build            # Production build: type check + bundle + minify
+npm run lint             # Run ESLint (typescript-eslint + obsidianmd plugin)
+npm version [patch|minor|major]  # Bump version in manifest.json and package.json
 ```
 
-### Dev (watch)
-
-```bash
-npm run dev
-```
-
-### Production build
-
-```bash
-npm run build
-```
-
-## Linting
-
-- To use eslint install eslint from terminal: `npm install -g eslint`
-- To use eslint to analyze this project use this command: `eslint main.ts`
-- eslint will then create a report with suggestions for code improvement by file and line number.
-- If your source code is in a folder, such as `src`, you can use eslint with this command to analyze all files in that folder: `eslint ./src/`
+**Note**: No test framework is currently configured. Manual testing only.
 
 ## File & folder conventions
 
@@ -80,6 +66,7 @@ npm run build
 
 ## Testing
 
+- No test framework configured. Manual testing only.
 - Manual install for testing: copy `main.js`, `manifest.json`, `styles.css` (if any) to:
   ```
   <Vault>/.obsidian/plugins/<plugin-id>/
@@ -130,13 +117,26 @@ Follow Obsidian's **Developer Policies** and **Plugin Guidelines**. In particula
 
 ## Coding conventions
 
-- TypeScript with `"strict": true` preferred.
+- TypeScript with `"strict": true` required (noImplicitAny, noImplicitThis, noImplicitReturns, strictNullChecks, noUncheckedIndexedAccess, useUnknownInCatchVariables).
 - **Keep `main.ts` minimal**: Focus only on plugin lifecycle (onload, onunload, addCommand calls). Delegate all feature logic to separate modules.
 - **Split large files**: If any file exceeds ~200-300 lines, consider breaking it into smaller, focused modules.
 - **Use clear module boundaries**: Each file should have a single, well-defined responsibility.
 - Bundle everything into `main.js` (no unbundled runtime deps).
 - Avoid Node/Electron APIs if you want mobile compatibility; set `isDesktopOnly` accordingly.
 - Prefer `async/await` over promise chains; handle errors gracefully.
+
+## Code style (enforced by Prettier & ESLint)
+
+- **Quotes**: Single quotes only (`'string'`)
+- **Semicolons**: Omit where not required
+- **Indentation**: 2 spaces
+- **Line width**: 120 characters
+- **Arrow functions**: No parens for single params: `x => x + 1`
+- **TypeScript**: Never use `any` or type assertions. Define proper interfaces/types.
+- **Comments**: English preferred for consistency, but Chinese comments acceptable
+- **Imports**: Use named exports when possible, default for main exports
+- **Error handling**: Use `catch (error)` with `unknown` type (enforced by tsconfig)
+- **UI**: Use Svelte components for UI, Svelte stores for state management
 
 ## Mobile
 
