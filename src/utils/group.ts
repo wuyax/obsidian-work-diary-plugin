@@ -24,6 +24,34 @@ export function groupByDateMap(items: ProjectItem[]): GroupedData {
   return map
 }
 
+function mergeSameItemsWithDiffProgress(items: string[]): string[] {
+  // 假设 items 格式为 ["Task A 50%", "Task A 100%", "Task B 30%"]
+  // Task A 只保留进度最高的 "Task A 100%"
+  const merged = new Map<string, { key: string; progress: number }>()
+
+  items.forEach(item => {
+    // 使用正则提取进度百分比,支持 % 前后有空格
+    const progressMatch = item.match(/(\d+)\s*%/)
+    const progress = progressMatch ? parseInt(progressMatch[1]!, 10) : 0
+
+    // 移除进度部分,得到任务名称
+    // 匹配并移除数字 + 可选空格 + %
+    const key = item.replace(/\d+\s*%/g, '').trim()
+
+    if (!merged.has(key)) {
+      merged.set(key, { key, progress })
+    } else {
+      const existing = merged.get(key)!
+      if (progress > existing.progress) {
+        merged.set(key, { key, progress })
+      }
+    }
+  })
+
+  let data = Array.from(merged.values()).map(({ key, progress }) => `${key} ${progress}%`)
+  return data
+}
+
 export function aggregateByProject(items: ProjectItem[]): ProjectItem[] {
   const merged = new Map<string, ProjectItem>()
   items.forEach(item => {
@@ -38,16 +66,20 @@ export function aggregateByProject(items: ProjectItem[]): ProjectItem[] {
       existing.effort = (currentEffort + newEffort).toString()
     }
   })
-  
-  return Array.from(merged.values()).sort((a, b) => {
+  const sorted = Array.from(merged.values()).sort((a, b) => {
     if (a.project !== b.project) {
       return a.project.localeCompare(b.project)
     }
-    const priorityOrder: Record<string, number> = { 'P0': 0, 'P1': 1, 'P2': 2, 'P3': 3, 'P4': 4 }
+    const priorityOrder: Record<string, number> = { P0: 0, P1: 1, P2: 2, P3: 3, P4: 4 }
     const pA = priorityOrder[a.priority] ?? 99
     const pB = priorityOrder[b.priority] ?? 99
     return pA - pB
   })
+  // 合并相同任务但不同进度的条目
+  sorted.forEach(item => {
+    item.items = mergeSameItemsWithDiffProgress(item.items)
+  })
+  return sorted
 }
 
 export function groupByMonthMap(items: ProjectItem[]): GroupedData {
@@ -70,7 +102,7 @@ export function groupByQuarterMap(items: ProjectItem[]): GroupedData {
   const map = new Map<string, ProjectItem[]>()
   items.forEach(item => {
     const date = new Date(item.date)
-    const quarter = !isNaN(date.getTime()) 
+    const quarter = !isNaN(date.getTime())
       ? `${date.getFullYear()}-Q${Math.floor(date.getMonth() / 3) + 1}`
       : 'Unknown Quarter'
     const existing = map.get(quarter) || []
