@@ -3,11 +3,30 @@
   import { type ProjectItem } from '../utils/group'
   import { quarterlySumarizePrompt } from '../utils/prompts'
 
+  function mergeByProject(blocks: ProjectItem[]): ProjectItem[] {
+    const merged = new Map<string, ProjectItem>()
+
+    blocks.forEach(b => {
+      const key = b.project
+      if (merged.has(key)) {
+        const existing = merged.get(key)!
+        // 合并 items，去重
+        const allItems = [...existing.items, ...b.items]
+        const uniqueItems = [...new Set(allItems)]
+        existing.items = uniqueItems
+      } else {
+        merged.set(key, { ...b })
+      }
+    })
+
+    return Array.from(merged.values())
+  }
+
   function copy(blocks: ProjectItem[], mode: string) {
     let text = ''
     if (mode === 'quarterly') {
-      text = quarterlySumarizePrompt + "\n"
-      text += "## Quarterly Work Summary\n\n"
+      text = quarterlySumarizePrompt + '\n'
+      text += '## Quarterly Work Summary\n\n'
       blocks.forEach(b => {
         text += `### Project: ${b.project}\n`
         text += `- Module: ${b.module}\n`
@@ -19,9 +38,11 @@
         text += `\n`
       })
     } else {
-      text = blocks
+      text = mergeByProject(blocks)
         .map(
-          b => `${b.priority || ''}: ${b.project}\n` + b.items.map((i: string, idx: number) => `${idx + 1}、${i}`).join('\n')
+          b =>
+            `${b.priority || ''}: ${b.project}\n` +
+            b.items.map((i: string, idx: number) => `${idx + 1}、${i}`).join('\n')
         )
         .join('\n\n')
     }
