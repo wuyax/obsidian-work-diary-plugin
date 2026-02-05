@@ -10,6 +10,7 @@
       const key = b.project
       if (merged.has(key)) {
         const existing = merged.get(key)!
+        existing.effort = Number(existing.effort) + Number(b.effort) + ''
         // 合并 items，去重
         const allItems = [...existing.items, ...b.items]
         const uniqueItems = [...new Set(allItems)]
@@ -77,6 +78,16 @@
             {/each}
           </ol>
         {/each}
+        {#if $viewMode === 'monthly'}
+          <div class="count-time-by-project">
+            <h4>按项目统计时间:</h4>
+            <ul>
+              {#each mergeByProject(items) as proj}
+                <li>{proj.project}: {proj.effort} hours</li>
+              {/each}
+            </ul>
+          </div>
+        {/if}
         <div class="btn-wrap">
           <button on:click={() => copy(items, $viewMode)}>
             {$viewMode === 'quarterly' ? 'Copy for LLM' : '复制'}
