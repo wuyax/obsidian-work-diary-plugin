@@ -80,7 +80,7 @@
         {/each}
         {#if $viewMode === 'monthly'}
           <div class="count-time-by-project">
-            <h4>按项目统计时间:</h4>
+            <h4>按项目统计本月工时:</h4>
             <ul>
               {#each mergeByProject(items) as proj}
                 <li>{proj.project}: {proj.effort} hours</li>
@@ -148,6 +148,20 @@
   li {
     line-height: 1.6;
     margin-bottom: 4px;
+  }
+
+  .count-time-by-project {
+    background: var(--background-modifier-cover);
+    padding: 10px;
+    border-radius: 6px;
+  }
+
+  h4 {
+    margin: 0;
+  }
+
+  ul {
+    margin: 0;
   }
 
   button {
